@@ -1,0 +1,75 @@
+---
+title: "Lab 1 - Intro to RMarkdown and Github"
+author: "GIS III Spring 2020 - Erin Abbott"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+Submission by Sunday 4/12
+
+
+
+## Develop a new RMarkdown document:
+
+* R version installed: 
+```{r}
+version
+```
+
+* load libraries
+```{r, echo=TRUE, eval=FALSE}
+#installing necessary libraries
+library(sf)
+library(raster)
+library(rgdal)
+library(spData)
+library(RColorBrewer)
+#devtools::install_github("Nowosad/spDataLarge") --> this library could not be installed. 
+
+```
+
+
+* Includes 2-3 code examples of R that you’ve learned as code chunks. This can be from introductory learning materials, and/or from the chapter readings this week.
+
+### Example 1: 
+```{r}
+# example 1: summary statistics for GDP per capita for the 177 countries in the data set
+ library(spData)  # the file wouldn't knit because it couldn't find "world", but by loading the necessary library right before the error fixed this problem. It then occurred a few more times with the raster and st_transform functions so call the needed libraries below a few times. 
+summary(world["gdpPercap"])
+
+
+```
+
+### Example 2: 
+```{r}
+
+# example 2: plotting a map of life expectancy for the 177 countries in the data set
+library("sf")
+world_proj <- st_transform(world, "+proj=eck4")
+par(mar = c(0, 0, 0, 0))
+lines <- st_graticule()
+lines <- st_transform(lines, crs = "+proj=eck4")
+plot(world_proj["lifeExp"], main="Life Expectancy", graticule=T, reset=FALSE)
+plot(lines$geometry, add = TRUE, col = "lightgrey")
+
+```
+
+
+### Example 3: 
+```{r}
+# example 3: raster of random numbers
+library(RColorBrewer)
+library(raster)
+valrast <- runif(10000,0,100)
+cols <- brewer.pal(n = 9, name = "PuBu")
+my_raster <- raster(nrows = 100, ncols = 100, xmn=0,xmx=100,ymn=0,ymx=100, res=1, vals =valrast)
+plot(my_raster, col=cols, main="Random Values Raster")
+```
+
+* Rendering in pdf
+
+## Uploaded to GitHub
