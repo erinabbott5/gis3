@@ -1,0 +1,89 @@
+---
+title: "Lab 2 - Descriptive Statistics and Basic Mapping"
+author: "GIS III Spring 2020 - Erin Abbott"
+output:
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+---
+Submission by Sunday 4/19
+
+
+
+## Data Manipulation
+
+* Load Libraries
+```{r, echo=TRUE}
+library(sf)
+library(raster)
+library(dplyr)
+library(spData)
+library(tidyverse)
+library(RColorBrewer)
+library(ggplot2)
+
+```
+
+* Data sources:
+  + Coffee production dataset: by  Roger Bivand, Jakub Nowosad, Robin Lovelace. Available on the [GitHub page](https://github.com/Nowosad/spData/tree/master/data).
+
+  + World dataset: by  Roger Bivand, Jakub Nowosad, Robin Lovelace. Available on the [GitHub page](https://github.com/Nowosad/spData/tree/master/data).
+
+
+
+```{r}
+#load coffee production data
+cof_data <- coffee_data
+class(cof_data)
+
+#load world data
+world <- world
+class(world)
+
+#join coffee and world data
+coffee <- left_join(world, cof_data)
+head(coffee)
+
+# create coffee production difference variable
+coffee1 <- coffee %>% mutate(prod_dif = coffee_production_2017 - coffee_production_2016)
+coffee1
+
+```
+
+ * Summary Stats:
+```{r}
+summary(coffee1$coffee_production_2016)
+summary(coffee1$coffee_production_2017)
+summary(coffee1$prod_dif)
+summary(coffee$area_km2)
+```
+ 
+ 
+## Non-Spatial Data Visualization
+
+```{r}
+ggplot(data=coffee1,aes(prod_dif)) +
+  geom_histogram(aes(fill=continent), color="black",bins=7) +
+  theme_light() + 
+  scale_fill_brewer(palette="Set3") +
+  ggtitle("Change in Coffee Production between 2016 and 2017 by Continent") +
+  xlab("Production Difference in (thousand 60-Kg Bags)") +
+  ylab("Number of Countries") + 
+  theme(plot.title = element_text(face = "bold"))
+
+
+```
+
+
+
+## Spatial Data Visualization
+
+```{r}
+plot(coffee1["prod_dif"], main="Change in Coffee Production between 2016 and 2017\n (in thousands of 60-Kg bags)", cex.main=0.8, axes = TRUE)
+
+```
+
+* Rendering in html
+
+* Uploaded to GitHub
