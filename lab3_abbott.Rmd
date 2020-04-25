@@ -1,0 +1,68 @@
+---
+title: "Lab 3 - Linking R to the Web"
+author: "GIS III Spring 2020 - Erin Abbott"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+
+Submission due on 4/26
+
+## Loading required packages
+```{r}
+library(ggmap)
+library(sf)
+library(rgdal)
+library(sp)
+library(tidyr)
+library(RColorBrewer)
+library(dplyr)
+library(ggsn)
+library(ggplot2)
+```
+
+## Reading a CSV from the web
+```{r}
+# read the data
+senegal <- read.csv("https://data.humdata.org/dataset/c0137f69-bf61-4991-8ed6-50bf603beed5/resource/f1dbe60c-6a92-4f42-9e00-47edb6bf595f/download/senegal.csv")
+head(senegal)
+str(senegal)
+
+# remove observations with NA amenity or lat/long values
+senegal1 <- senegal %>% drop_na(amenity) %>% drop_na(X) 
+
+# remove observations with a blank amenity value. 
+senegal2 <- senegal1 %>% filter(amenity!="")
+str(senegal2)
+
+
+```
+
+## Preparing basemap
+```{r}
+# making Senegal base map
+coords <- c(lon=-14.45, lat=14.49)
+basemap <- get_map(coords,zoom=7,maptype = "terrain", alpha = 0.5)
+base <- ggmap(basemap)
+
+#bounding box for scalebar:
+bb<- attr(basemap, "bb")
+bb2 <- data.frame(long=unlist(bb[c(2,4)]), lat= unlist(bb[c(1,3)]))
+bb2
+```
+
+## Plotting heathsites in Senegal by type
+```{r}
+
+map<- base + geom_point(data=senegal2, aes(x=X, y=Y, colour=amenity), size=3, alpha=0.8) + scale_colour_brewer(palette = "Set1") + ggtitle("Heathsites in Senegal") + scalebar(data=bb2,dist=100, dist_unit = "km", transform=TRUE, model="WGS84", location="bottomleft", anchor = c(x = bb$ll.lon + 0.05 * (bb$ur.lon - bb$ll.lon), y = bb$ll.lat + 0.05 * (bb$ur.lat - bb$ll.lat)), st.dist = 0.03, st.size=3.5, st.color="gray40") + theme_bw() + labs(colour="Amenity Type")
+north2(map, y=0.85, symbol=14)
+
+```
+
+
+* Data source: Global Healthsites Mapping Project, found on the Humanitarian Data Exchange - https://data.humdata.org/dataset/senegal-healthsites
+
